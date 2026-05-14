@@ -1,10 +1,8 @@
 name: "Terraform Infrastructure Check"
-
-on:
-  pull_request: # ОСЬ ТУТ ПАСТКА: запускається на код з ПР
+on: [pull_request]
 
 permissions:
-  id-token: write # Потрібно для отримання токена через Workload Identity
+  id-token: write
   contents: read
 
 jobs:
@@ -14,15 +12,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Симулюємо аутентифікацію в GCP (на реальному проекті тут стоять живі ID)
-      - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      # ДОДАЙ ЦЕЙ КРОК: Встановлення Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
         with:
-          workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/test-pool/providers/test-provider'
-          service_account: 'terraform-sa@fake-project.iam.gserviceaccount.com'
+          terraform_version: "1.7.0"
 
-      # Крок, який виконує команду plan
+      - name: 'Authenticate to Google Cloud (Simulation)'
+        uses: 'google-github-actions/auth@v2'
+        continue-on-error: true
+        with:
+          workload_identity_provider: 'projects/12345/locations/global/workloadIdentityPools/test/providers/test'
+          service_account: 'fake-sa@project.iam.gserviceaccount.com'
+
       - name: 'Terraform Plan'
+        env:
+          MOCK_GCP_TOKEN: "ya29.a0AfB_fake_token_for_report_purposes_12345"
         run: |
           terraform init
           terraform plan
