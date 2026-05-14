@@ -1,5 +1,7 @@
 name: "Terraform Infrastructure Check"
-on: [pull_request]
+on: 
+  push:         # Додаємо цей тригер
+  pull_request: # Лишаємо цей для PR
 
 permissions:
   id-token: write
