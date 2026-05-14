@@ -12,16 +12,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
       - name: 'Authenticate to Google Cloud (Simulation)'
         uses: 'google-github-actions/auth@v2'
-        continue-on-error: true # ЦЕ ВАЖЛИВО: йдемо далі навіть при помилці
+        continue-on-error: true
         with:
           workload_identity_provider: 'projects/12345/locations/global/workloadIdentityPools/test/providers/test'
           service_account: 'fake-sa@project.iam.gserviceaccount.com'
 
       - name: 'Terraform Plan'
         env:
-          # Симулюємо "секретний токен", який нібито отримали
           MOCK_GCP_TOKEN: "ya29.a0AfB_fake_token_for_report_purposes_12345"
         run: |
           terraform init
